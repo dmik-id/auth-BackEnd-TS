@@ -1,0 +1,21 @@
+{
+    "compilerOptions": {
+        // "types": ["node"],
+        "alwaysStrict": true,
+        "target": "es6",
+        "module": "commonjs",
+        "removeComments": true,
+        "allowJs": true,
+        "esModuleInterop": true,
+        "strict": false,
+        "outDir": "dist",
+        "noUnusedLocals": true
+    },
+    "include": [
+        "server/**/*"
+    ],
+    "exclude": [
+        "node_modules",
+        "**/*.spec.ts"
+    ]
+}
