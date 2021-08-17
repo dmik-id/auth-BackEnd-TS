@@ -41,7 +41,7 @@ class TokenService {
     }
 
     async removeToken(refreshToken:string) {
-        const tokenData = await TokenSchema.drop({where:{refreshToken}})
+        const tokenData = await TokenSchema.destroy({where:{refreshToken}})
         return tokenData;
     }
 

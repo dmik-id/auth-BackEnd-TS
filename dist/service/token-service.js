@@ -51,7 +51,7 @@ class TokenService {
     }
     removeToken(refreshToken) {
         return __awaiter(this, void 0, void 0, function* () {
-            const tokenData = yield TokenSchema.drop({ where: { refreshToken } });
+            const tokenData = yield TokenSchema.destroy({ where: { refreshToken } });
             return tokenData;
         });
     }
