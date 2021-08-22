@@ -9,7 +9,9 @@
         "esModuleInterop": true,
         "strict": false,
         "outDir": "dist",
-        "noUnusedLocals": true
+        "noUnusedLocals": true,
+        "emitDecoratorMetadata": true,
+        "experimentalDecorators": true,
     },
     "include": [
         "server/**/*"

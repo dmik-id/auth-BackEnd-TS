@@ -1,5 +1,7 @@
+import { getRepository } from "typeorm";
+import { User } from "../models/user-model";
+
 export{}
-const {UserSchema} = require('../models/user-model');
 const bcrypt = require('bcrypt');
 const uuid = require('uuid');
 // const mailService = require('./mail-service');
@@ -9,14 +11,17 @@ const ApiError = require('../exceptions/api-error');
 
 class UserService {
     async registration(email:string, password:string) {
-        const candidate = await UserSchema.findOne({where: {email}})
+        const userRepo = getRepository(User)
+        const candidate = await userRepo.findOne({where: {email}})
         if (candidate) {
             throw ApiError.BadRequest(`Пользователь с почтовым адресом ${email} уже существует`)
         }
         const hashPassword = await bcrypt.hash(password, 3);
         const activationLink = uuid.v4(); // v34fa-asfasf-142saf-sa-asf
 
-        const user = await UserSchema.create({email, password: hashPassword, activationLink})
+        const user = userRepo.create({email, password: hashPassword, activationLink , isActivated:true, role:'ADMIN'})
+        await userRepo.save(user)
+        // const user = await UserSchema.create({email, password: hashPassword, activationLink})
         // await mailService.sendActivationMail(email, `${process.env.API_URL}/api/activate/${activationLink}`);
         
 
@@ -37,7 +42,8 @@ class UserService {
     // }
 
     async login(email:string, password:string) {
-        const user = await UserSchema.findOne({where:{email}})
+        const userRepo = getRepository(User)
+        const user = await userRepo.findOne({where:{email}})
         if (!user) {
             throw ApiError.BadRequest('Пользователь с таким email не найден')
         }
@@ -68,7 +74,8 @@ class UserService {
         if (!userData || !tokenFromDb) {
             throw ApiError.UnauthorizedError();
         }
-        const user = await UserSchema.findById(userData.id);
+        const userRepo = getRepository(User)
+        const user = await userRepo.findOne(userData.id);
         const userDto = new UserDto(user);
         const tokens = tokenService.generateTokens({...userDto});
 
@@ -77,7 +84,8 @@ class UserService {
     }
 
     async getAllUsers() {
-        const users = await UserSchema.findAll();
+        const userRepo = getRepository(User)
+        const users = await userRepo.find();
         return users;
     }
 }

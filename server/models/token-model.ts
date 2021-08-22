@@ -6,16 +6,33 @@
 // })
 
 // module.exports = model('Token', TokenSchema);
-export{}
-const sequelize = require('../db')
-const {DataTypes} = require('sequelize')
-const TokenSchema = sequelize.define('TokenSchema', {
-    user: {type: DataTypes.INTEGER, ref: 'UserSchema'},
-    refreshToken: {type: DataTypes.STRING, required: true},
-})
+////////////////////////////////////////////////////////
+// export{}
+// const sequelize = require('../db')
+// const {DataTypes} = require('sequelize')
+// const TokenSchema = sequelize.define('TokenSchema', {
+//     user: {type: DataTypes.INTEGER, ref: 'UserSchema'},
+//     refreshToken: {type: DataTypes.STRING, required: true},
+// })
 
 
 
-module.exports = {
-    TokenSchema,
+// module.exports = {
+//     TokenSchema,
+// }
+//////////////////////////////////////////////////////
+import { Entity, PrimaryGeneratedColumn, Column } from "typeorm";
+
+@Entity()
+export class Token {
+
+    @PrimaryGeneratedColumn()
+    id: number;
+
+    @Column()
+    user: number
+
+    @Column()
+    refreshToken: string
+
 }

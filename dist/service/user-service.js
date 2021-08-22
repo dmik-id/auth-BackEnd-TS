@@ -9,7 +9,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const { UserSchema } = require('../models/user-model');
+const typeorm_1 = require("typeorm");
+const user_model_1 = require("../models/user-model");
 const bcrypt = require('bcrypt');
 const uuid = require('uuid');
 const tokenService = require('./token-service');
@@ -18,13 +19,15 @@ const ApiError = require('../exceptions/api-error');
 class UserService {
     registration(email, password) {
         return __awaiter(this, void 0, void 0, function* () {
-            const candidate = yield UserSchema.findOne({ where: { email } });
+            const userRepo = typeorm_1.getRepository(user_model_1.User);
+            const candidate = yield userRepo.findOne({ where: { email } });
             if (candidate) {
                 throw ApiError.BadRequest(`Пользователь с почтовым адресом ${email} уже существует`);
             }
             const hashPassword = yield bcrypt.hash(password, 3);
             const activationLink = uuid.v4();
-            const user = yield UserSchema.create({ email, password: hashPassword, activationLink });
+            const user = userRepo.create({ email, password: hashPassword, activationLink, isActivated: true, role: 'ADMIN' });
+            yield userRepo.save(user);
             const userDto = new UserDto(user);
             const tokens = tokenService.generateTokens(Object.assign({}, userDto));
             yield tokenService.saveToken(userDto.id, tokens.refreshToken);
@@ -33,7 +36,8 @@ class UserService {
     }
     login(email, password) {
         return __awaiter(this, void 0, void 0, function* () {
-            const user = yield UserSchema.findOne({ where: { email } });
+            const userRepo = typeorm_1.getRepository(user_model_1.User);
+            const user = yield userRepo.findOne({ where: { email } });
             if (!user) {
                 throw ApiError.BadRequest('Пользователь с таким email не найден');
             }
@@ -64,7 +68,8 @@ class UserService {
             if (!userData || !tokenFromDb) {
                 throw ApiError.UnauthorizedError();
             }
-            const user = yield UserSchema.findById(userData.id);
+            const userRepo = typeorm_1.getRepository(user_model_1.User);
+            const user = yield userRepo.findOne(userData.id);
             const userDto = new UserDto(user);
             const tokens = tokenService.generateTokens(Object.assign({}, userDto));
             yield tokenService.saveToken(userDto.id, tokens.refreshToken);
@@ -73,7 +78,8 @@ class UserService {
     }
     getAllUsers() {
         return __awaiter(this, void 0, void 0, function* () {
-            const users = yield UserSchema.findAll();
+            const userRepo = typeorm_1.getRepository(user_model_1.User);
+            const users = yield userRepo.find();
             return users;
         });
     }
