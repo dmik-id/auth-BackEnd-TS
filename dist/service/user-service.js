@@ -12,7 +12,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const typeorm_1 = require("typeorm");
 const user_model_1 = require("../models/user-model");
 const bcrypt = require('bcrypt');
-const uuid = require('uuid');
 const tokenService = require('./token-service');
 const UserDto = require('../dtos/user-dto');
 const ApiError = require('../exceptions/api-error');
@@ -25,8 +24,7 @@ class UserService {
                 throw ApiError.BadRequest(`Пользователь с почтовым адресом ${email} уже существует`);
             }
             const hashPassword = yield bcrypt.hash(password, 3);
-            const activationLink = uuid.v4();
-            const user = userRepo.create({ email, password: hashPassword, activationLink, isActivated: true, role: 'ADMIN' });
+            const user = yield userRepo.create({ email, password: hashPassword, isActivated: true, role: 'USER' });
             yield userRepo.save(user);
             const userDto = new UserDto(user);
             const tokens = tokenService.generateTokens(Object.assign({}, userDto));
@@ -46,7 +44,7 @@ class UserService {
                 throw ApiError.BadRequest('Неверный пароль');
             }
             const userDto = new UserDto(user);
-            console.log("fuck", userDto, "OMG");
+            console.log(userDto);
             const tokens = tokenService.generateTokens(Object.assign({}, userDto));
             yield tokenService.saveToken(userDto.id, tokens.refreshToken);
             return Object.assign(Object.assign({}, tokens), { user: userDto });
@@ -69,7 +67,7 @@ class UserService {
                 throw ApiError.UnauthorizedError();
             }
             const userRepo = typeorm_1.getRepository(user_model_1.User);
-            const user = yield userRepo.findOne(userData.id);
+            const user = yield userRepo.findByIds(userData.id);
             const userDto = new UserDto(user);
             const tokens = tokenService.generateTokens(Object.assign({}, userDto));
             yield tokenService.saveToken(userDto.id, tokens.refreshToken);

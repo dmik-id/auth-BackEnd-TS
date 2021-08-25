@@ -44,8 +44,8 @@ export class User {
     @Column()
     isActivated: boolean;
 
-    @Column()
-    activationLink: string;
+    // @Column()
+    // activationLink: string;
 
     @Column()
     role: string;

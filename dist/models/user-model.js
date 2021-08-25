@@ -32,10 +32,6 @@ __decorate([
 __decorate([
     typeorm_1.Column(),
     __metadata("design:type", String)
-], User.prototype, "activationLink", void 0);
-__decorate([
-    typeorm_1.Column(),
-    __metadata("design:type", String)
 ], User.prototype, "role", void 0);
 User = __decorate([
     typeorm_1.Entity()

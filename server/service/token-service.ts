@@ -1,7 +1,6 @@
 import { getRepository } from "typeorm";
 import { Token } from "../models/token-model";
 // import { User } from "../models/user-model";
-
 export{}
 const jwt = require('jsonwebtoken');
 // const {TokenSchema} = require('../models/token-model');
@@ -9,7 +8,7 @@ const jwt = require('jsonwebtoken');
 
 class TokenService {
     generateTokens(payload) {
-        const accessToken = jwt.sign(payload, process.env.JWT_ACCESS_SECRET, {expiresIn: '15s'})
+        const accessToken = jwt.sign(payload, process.env.JWT_ACCESS_SECRET, {expiresIn: '15d'})
         const refreshToken = jwt.sign(payload, process.env.JWT_REFRESH_SECRET, {expiresIn: '30d'})
         return {
             accessToken,
@@ -37,13 +36,15 @@ class TokenService {
 
     async saveToken(userId:number, refreshToken:string) {
         const tokenRepo = getRepository(Token)
-        const tokenData = await tokenRepo.findOne({user: userId})
+
+        const tokenData = await tokenRepo.findOne({where:{user: userId}})
         if (tokenData) {
             tokenData.refreshToken = refreshToken;
-            const token = tokenRepo.create({user : userId, refreshToken})
-            return tokenRepo.save(token);
+            // const token = tokenRepo.create({user : userId, refreshToken})
+            return tokenRepo;
         }
         const token = await tokenRepo.create({user: userId, refreshToken})
+        await tokenRepo.save(token)
         return token;
     }
 
@@ -55,7 +56,7 @@ class TokenService {
 
     async findToken(refreshToken:string) {
         const tokenRepo = getRepository(Token)
-        const tokenData = await tokenRepo.findOne({where:{refreshToken}})
+        const tokenData = await tokenRepo.findOne({refreshToken})
         return tokenData;
     }
 }

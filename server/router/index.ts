@@ -5,6 +5,7 @@ const userController = require('../controllers/user-controller');
 const router = new Router();
 const {body} = require('express-validator');
 const authMiddleware = require('../middlewares/auth-middleware');
+const adminController = require('../controllers/admin-controller')
 
 router.post('/registration',
     body('email').isEmail(),
@@ -12,9 +13,10 @@ router.post('/registration',
     userController.registration
 );
 router.post('/login', userController.login);
-router.post('/logout', userController.logout);
+router.post('/logout', userController.logout);//////////////////////////////////////////
+router.post('/edituser', adminController.editUser)
 // router.get('/activate/:link', userController.activate);
-router.get('/refresh', userController.refresh);
-router.get('/users', authMiddleware, userController.getUsers);
+router.get('/refresh',authMiddleware, userController.refresh);
+router.get('/users',authMiddleware, userController.getUsers);
 
 module.exports = router

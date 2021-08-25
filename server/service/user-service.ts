@@ -3,7 +3,7 @@ import { User } from "../models/user-model";
 
 export{}
 const bcrypt = require('bcrypt');
-const uuid = require('uuid');
+// const uuid = require('uuid');
 // const mailService = require('./mail-service');
 const tokenService = require('./token-service');
 const UserDto = require('../dtos/user-dto');
@@ -17,9 +17,9 @@ class UserService {
             throw ApiError.BadRequest(`Пользователь с почтовым адресом ${email} уже существует`)
         }
         const hashPassword = await bcrypt.hash(password, 3);
-        const activationLink = uuid.v4(); // v34fa-asfasf-142saf-sa-asf
+        // const activationLink = uuid.v4(); // v34fa-asfasf-142saf-sa-asf
 
-        const user = userRepo.create({email, password: hashPassword, activationLink , isActivated:true, role:'ADMIN'})
+        const user = await userRepo.create({email, password: hashPassword, isActivated:true, role:'USER'})
         await userRepo.save(user)
         // const user = await UserSchema.create({email, password: hashPassword, activationLink})
         // await mailService.sendActivationMail(email, `${process.env.API_URL}/api/activate/${activationLink}`);
@@ -27,6 +27,7 @@ class UserService {
 
         const userDto = new UserDto(user); // id, email, isActivated
         const tokens = tokenService.generateTokens({...userDto});
+        
         await tokenService.saveToken(userDto.id, tokens.refreshToken);
 
         return {...tokens, user: userDto}
@@ -53,7 +54,7 @@ class UserService {
         }
         
         const userDto = new UserDto(user);
-        console.log("fuck", userDto , "OMG")
+        console.log( userDto )
         const tokens = tokenService.generateTokens({...userDto});
 
         await tokenService.saveToken(userDto.id, tokens.refreshToken);
@@ -67,7 +68,7 @@ class UserService {
 
     async refresh(refreshToken:string) {
         if (!refreshToken) {
-            throw ApiError.UnauthorizedError();
+             throw ApiError.UnauthorizedError();
         }
         const userData = tokenService.validateRefreshToken(refreshToken);
         const tokenFromDb = await tokenService.findToken(refreshToken);
@@ -75,7 +76,7 @@ class UserService {
             throw ApiError.UnauthorizedError();
         }
         const userRepo = getRepository(User)
-        const user = await userRepo.findOne(userData.id);
+        const user = await userRepo.findByIds(userData.id);
         const userDto = new UserDto(user);
         const tokens = tokenService.generateTokens({...userDto});
 

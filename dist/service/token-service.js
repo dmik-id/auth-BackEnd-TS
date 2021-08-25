@@ -14,7 +14,7 @@ const token_model_1 = require("../models/token-model");
 const jwt = require('jsonwebtoken');
 class TokenService {
     generateTokens(payload) {
-        const accessToken = jwt.sign(payload, process.env.JWT_ACCESS_SECRET, { expiresIn: '15s' });
+        const accessToken = jwt.sign(payload, process.env.JWT_ACCESS_SECRET, { expiresIn: '15d' });
         const refreshToken = jwt.sign(payload, process.env.JWT_REFRESH_SECRET, { expiresIn: '30d' });
         return {
             accessToken,
@@ -42,13 +42,13 @@ class TokenService {
     saveToken(userId, refreshToken) {
         return __awaiter(this, void 0, void 0, function* () {
             const tokenRepo = typeorm_1.getRepository(token_model_1.Token);
-            const tokenData = yield tokenRepo.findOne({ user: userId });
+            const tokenData = yield tokenRepo.findOne({ where: { user: userId } });
             if (tokenData) {
                 tokenData.refreshToken = refreshToken;
-                const token = tokenRepo.create({ user: userId, refreshToken });
-                return tokenRepo.save(token);
+                return tokenRepo;
             }
             const token = yield tokenRepo.create({ user: userId, refreshToken });
+            yield tokenRepo.save(token);
             return token;
         });
     }
@@ -62,7 +62,7 @@ class TokenService {
     findToken(refreshToken) {
         return __awaiter(this, void 0, void 0, function* () {
             const tokenRepo = typeorm_1.getRepository(token_model_1.Token);
-            const tokenData = yield tokenRepo.findOne({ where: { refreshToken } });
+            const tokenData = yield tokenRepo.findOne({ refreshToken });
             return tokenData;
         });
     }
