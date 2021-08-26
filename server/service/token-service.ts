@@ -50,7 +50,8 @@ class TokenService {
 
     async removeToken(refreshToken:string) {
         const tokenRepo = getRepository(Token)
-        const tokenData = await tokenRepo.delete({refreshToken})
+        const user = await tokenRepo.findOne(refreshToken);
+        const tokenData = await tokenRepo.remove(user)
         return tokenData;
     }
 

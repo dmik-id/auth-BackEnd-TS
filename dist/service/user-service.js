@@ -67,7 +67,7 @@ class UserService {
                 throw ApiError.UnauthorizedError();
             }
             const userRepo = typeorm_1.getRepository(user_model_1.User);
-            const user = yield userRepo.findByIds(userData.id);
+            const user = yield userRepo.findOne(userData.id);
             const userDto = new UserDto(user);
             const tokens = tokenService.generateTokens(Object.assign({}, userDto));
             yield tokenService.saveToken(userDto.id, tokens.refreshToken);

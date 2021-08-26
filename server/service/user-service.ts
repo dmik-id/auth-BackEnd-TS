@@ -76,7 +76,7 @@ class UserService {
             throw ApiError.UnauthorizedError();
         }
         const userRepo = getRepository(User)
-        const user = await userRepo.findByIds(userData.id);
+        const user = await userRepo.findOne(userData.id);
         const userDto = new UserDto(user);
         const tokens = tokenService.generateTokens({...userDto});
 

@@ -55,7 +55,8 @@ class TokenService {
     removeToken(refreshToken) {
         return __awaiter(this, void 0, void 0, function* () {
             const tokenRepo = typeorm_1.getRepository(token_model_1.Token);
-            const tokenData = yield tokenRepo.delete({ refreshToken });
+            const user = yield tokenRepo.findOne(refreshToken);
+            const tokenData = yield tokenRepo.remove(user);
             return tokenData;
         });
     }
